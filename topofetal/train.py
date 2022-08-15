@@ -1,19 +1,17 @@
-# - - - - - My imports - - - - - #
+# Author: Priscille de Dumast
+# Date: 15.08.2022
+
 import os
 import argparse
-from utils import DataManager, network_utils
-
-import tensorflow as tf
-
 import pandas as pd
 
-# Fix random
+import tensorflow as tf
 tf.random.set_seed(1312)
 
+from utils import DataManager, network_utils
 
 
 def main(p_fold = 0):
-
 
     code_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -40,13 +38,12 @@ def main(p_fold = 0):
     paths_t2w_valid = [os.path.join(feta20_dir, sub, 'anat', sub+'_rec-irtk_T2w.nii.gz') for sub in subjects_valid]
     paths_dseg_valid = [os.path.join(feta20_dir, sub, 'anat', sub+'_rec-irtk_dseg.nii.gz') for sub in subjects_valid]
 
-
-    dm = DataManager.DataManager( p_patch_size = 64,
-                                        p_extraction_step = 48,
-                                        p_extraction_axis = [0,1,2],
-                                        p_n_classes = 2,
-                                        p_n_channels = 1,
-                                        p_do_segment_tiv= True)
+    dm = DataManager.DataManager(
+        p_patch_size = 64,
+        p_extraction_step = 48,
+        p_extraction_axis = [0,1,2],
+        p_n_classes = 2
+    )
 
     ds = tf.data.Dataset.from_tensor_slices((paths_t2w_train, paths_dseg_train)). \
         map(dm.tf_load_data, num_parallel_calls=tf.data.experimental.AUTOTUNE).\
@@ -67,20 +64,18 @@ def main(p_fold = 0):
         cache().\
         shuffle(buffer_size=100, seed=1312)
 
-    p_lb = 0
-    p_f = False
-    p_mp = config_network["mp"]
+    lb = 0
+    lb_hybrid = 0
+    mp = config_network["mp"]
     configuration = config_network["configuration"]
 
     if configuration in ["warm_up", "Baseline", "TopoCP"]:
-        lb_hybrid = 0
+
         if configuration in ["TopoCP"]:
-            p_lb = config_network["lambda_topo"]
+            lb = config_network["lambda_topo"]
 
     elif configuration in ["Hybrid"]:
         lb_hybrid = 0.5
-
-
 
     def gen_network_name_path(config, fold):
         network_name = config + '_' + str(fold)
@@ -90,21 +85,23 @@ def main(p_fold = 0):
 
     network_name, network_path = gen_network_name_path(configuration, p_fold)
 
+    model = network_utils.get_model(
+        dm,
+        lambda_topoloss = lb,
+        lambda_hybrid = lb_hybrid,
+        min_pers_th = mp
+    )
 
-    model = network_utils.get_model(dm,
-                                    lambda_topoloss     = p_lb,
-                                    lambda_hybrid       = lb_hybrid,
-                                    min_pers_th         = p_mp)
-    model = network_utils.compile_model(p_model = model, p_lr_init = 0.01)
-
+    model = network_utils.compile_model(
+        p_model = model,
+        p_lr_init = 0.01
+    )
     print("Model compiled.")
-    print("-")
 
     if configuration in ["Baseline", "Hybrid", "TopoCP"]:
         model.load_weights( gen_network_name_path('warm_up', fold)[1] )
         print("Loaded weights from {} ".format( gen_network_name_path('warm_up', fold)[1] ))
         print("-")
-
 
     # Tensorboard
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
@@ -135,11 +132,13 @@ def main(p_fold = 0):
         else:
             to_be_monitored = 'val_loss'
 
-        earlystopping = tf.keras.callbacks.EarlyStopping(monitor=to_be_monitored,
-                                                                   mode="min",
-                                                                   min_delta=0.001,
-                                                                   patience=6,
-                                                                   restore_best_weights=True)
+        earlystopping = tf.keras.callbacks.EarlyStopping(
+            monitor=to_be_monitored,
+            mode="min",
+            min_delta=0.001,
+            patience=6,
+            restore_best_weights=True
+        )
         callback_list.append(earlystopping)
 
 
@@ -151,11 +150,9 @@ def main(p_fold = 0):
               validation_data=ds_val.shard(num_shards=3, index=0).batch(32),
               initial_epoch=init_epoch,
               callbacks=callback_list)
-
     model.save_weights(network_path, save_format='tf')
 
     return
-
 
 def get_parser():
 
@@ -171,4 +168,4 @@ if __name__ == '__main__':
 
     fold = int(os.environ['SLURM_ARRAY_TASK_ID']) if 'SLURM_ARRAY_TASK_ID' in os.environ.keys() else args.FOLD
 
-    main(p_fold=fold)
+    main(p_fold=3)

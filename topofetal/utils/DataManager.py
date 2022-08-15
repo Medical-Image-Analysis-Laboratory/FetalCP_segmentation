@@ -1,4 +1,5 @@
-import os.path
+# Author: Priscille de Dumast
+# Date: 15.08.2022
 
 import numpy as np
 import nibabel as nib
@@ -22,8 +23,7 @@ class DataManager():
                  p_extraction_step = 64,
                  p_extraction_axis = [2],
                  p_n_classes = 2,
-                 p_n_channels = 1,
-                 p_do_segment_tiv=True):
+                 p_n_channels = 1):
 
         self.m_patch_size = p_patch_size
         self.m_extraction_step = p_extraction_step
@@ -31,8 +31,6 @@ class DataManager():
 
         self.m_n_classes = p_n_classes
         self.m_n_channels = p_n_channels
-
-        self.m_do_segment_tiv = p_do_segment_tiv
 
         self.m_patch_shape = (1, self.m_patch_size, self.m_patch_size)
         self.m_extraction_shape = (1, self.m_extraction_step, self.m_extraction_step)
@@ -118,11 +116,7 @@ class DataManager():
         labels_b = np.zeros(labels.shape)
         labels = np.where(labels > 8, 0, labels)
 
-        if self.m_n_classes == 2:
-            if 'STA' in os.path.basename(path_t2w) and 'cortex' in os.path.basename(path_dseg):
-                labels_b = labels
-            else:
-                labels_b = 1 * (labels == 2)
+        if self.m_n_classes == 2: labels_b = 1 * (labels == 2)
 
         labels_b = to_categorical(labels_b, num_classes=self.m_n_classes)
         images = np.expand_dims(images, -1)
@@ -130,7 +124,7 @@ class DataManager():
         images = np.float32(images)
         labels_b = np.int16(labels_b)
 
-        print(os.path.basename(path_t2w),"Extracted images : images.shape  ", images.shape, "  ||  labels.shape ", labels_b.shape)
+        # print(os.path.basename(path_t2w),"Extracted images : images.shape  ", images.shape, "  ||  labels.shape ", labels_b.shape)
         return images, labels_b
 
 

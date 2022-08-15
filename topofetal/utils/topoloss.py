@@ -1,14 +1,12 @@
 #
 # Author: Priscille de Dumast
+# Date: 15.08.2022
 # Code adapted from https://github.com/HuXiaoling/TopoLoss
-
 
 import numpy
 import gudhi as gd
 
 import numpy as np
-
-
 
 def compute_dgm_force(lh_dgm, gt_dgm, pers_thresh=0.00001, pers_thresh_perfect=0.99):
 

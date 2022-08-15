@@ -1,13 +1,12 @@
+# Author: Priscille de Dumast
+# Date: 15.08.2022
 
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
-
 from utils import network_utils
-
 from utils import topoloss as topoloss
-
 
 loss_tracker = keras.metrics.Mean(name="loss")
 val_loss_tracker = keras.metrics.Mean(name="val_loss")
@@ -23,9 +22,6 @@ val_topo_0d_tracker = keras.metrics.Mean(name="val_topo_0d")
 
 topo_1d_tracker = keras.metrics.Mean(name="topo_1d")
 val_topo_1d_tracker = keras.metrics.Mean(name="val_topo_1d")
-
-# tf.debugging.set_log_device_placement(True)
-tf.keras.backend.set_floatx('float32')
 
 
 class UnetModel(keras.Model):

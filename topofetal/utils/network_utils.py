@@ -1,10 +1,10 @@
+# Author: Priscille de Dumast
+# Date: 15.08.2022
 
 from utils import UnetModel
 
-
 import tensorflow as tf
 from tensorflow.keras import optimizers
-
 
 def get_model(p_dm, lambda_topoloss=0, lambda_hybrid = 0, min_pers_th=0):
     m = UnetModel.UnetModel(p_num_classes=p_dm.m_n_classes,
@@ -15,15 +15,12 @@ def get_model(p_dm, lambda_topoloss=0, lambda_hybrid = 0, min_pers_th=0):
                             p_min_pers_th=min_pers_th)
     return m
 
-
 def compile_model(p_model, p_lr_init):
     p_model.compile(optimizer=optimizers.Adam(learning_rate=p_lr_init),
                     metrics=['accuracy', dice_coeff_multilabel])
     return p_model
 
 
-
-## Tommaso's functions for BCE + Dice loss
 @tf.function
 def dice_coeff(y_true, y_pred, smooth=1.):
     """This function computes the soft dice coefficient between the predicted mask and the ground truth mask

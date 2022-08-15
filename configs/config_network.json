@@ -1,5 +1,5 @@
 {
-    "configuration": "TopoCP",
+    "configuration": "Baseline",
 
     "lambda_topo" : 0.005,
     "mp": 0.01

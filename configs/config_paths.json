@@ -1,4 +1,5 @@
 {
     "feta20_dir" : "/feta_2.0",
-    "networks_dir" : "/networks_dir"
+    "networks_dir" : "/networks_dir",
+    "results_dir" : "/results_dir"
 }
