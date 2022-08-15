@@ -11,8 +11,16 @@ Please cite the paper if you are using either our python implementation or model
 
 ## Usage
 
-### 1. Training
+### 1. Update paths in ```config_paths.json```
 
+### 2. Training
 
-### 2. Inference
+```python train.py [fold]```
 
+### 3. Inference
+
+Inference only:
+```python infer_feta20.py```
+
+With performance metrics computation:
+```python infer_and_eval_feta20.py```
