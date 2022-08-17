@@ -1,7 +1,7 @@
 # "Multi-dimensional topological loss for cortical plate segmentation in fetal brain MRI"
 
 
-This repository contains the code used for the [paper](https://arxiv.org/): "Multi-dimensional topological loss for cortical plate segmentation in fetal brain MRI". 
+This repository contains the code used for the [paper](https://arxiv.org/abs/2208.07566): "Multi-dimensional topological loss for cortical plate segmentation in fetal brain MRI". 
 
 Please cite the paper if you are using either our python implementation or model.
 
